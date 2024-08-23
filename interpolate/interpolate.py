@@ -72,10 +72,10 @@ class RLineal:
         return(self.R)
 
     def error_est_regre(self):
-        for i in range(n):
+        for i in range(self.n):
             y_prima = ((self.R[0])*(self.x_data[i]))+(self.R[1])
             self.acumulacion += math.fabs((self.y_data[i] - y_prima)/(self.y_data[i]))*(100)
-        A_prima = (1/n)*(self.acumulacion)
+        A_prima = (1/self.n)*(self.acumulacion)
         return(A_prima)
 
 class RExponencial:
@@ -99,7 +99,7 @@ class RExponencial:
         return(np.array(self.A))
     
     def ydata_ln(self):
-        for i in range(n):
+        for i in range(self.n):
             y_ln = math.log(self.y_data[i])
             self.y_data_ln.append(y_ln)
         return(self.y_data_ln)
@@ -113,10 +113,10 @@ class RExponencial:
         return(self.V)
     
     def error_est_regre(self):
-        for i in range(n):
+        for i in range(self.n):
             y_prima = math.exp(self.V[0]+((self.V[1])*(self.x_data[i])))
             self.acumulacion += math.fabs((self.y_data[i] - y_prima)/(self.y_data[i]))*(100)
-        A_prima = (1/n)*(self.acumulacion)
+        A_prima = (1/self.n)*(self.acumulacion)
         return(A_prima)
     
 class RCuadratica:
@@ -162,7 +162,7 @@ class RCuadratica:
         for i in range(self.n):
             y_prima = (self.resultado[0])*((self.x_data[i])**(2)) + (self.resultado[1])*(self.x_data[i]) + self.resultado[2]
             self.acumulacion += math.fabs((self.y_data[i] - y_prima)/(self.y_data[i]))*(100)
-        A_prima = (1/n)*(self.acumulacion)
+        A_prima = (1/self.n)*(self.acumulacion)
         return(A_prima)
 
 class RCubica:
@@ -216,7 +216,7 @@ class RCubica:
             y_prima = (self.resultado[0])*((self.x_data[i])**(3)) + (self.resultado[1])*((self.x_data[i])**(2)) + (self.resultado[2])*(self.x_data[i]) + self.resultado[3]
             self.acumulacion += math.fabs((self.y_data[i] - y_prima)/(self.y_data[i]))*(100)
 
-        A_prima = (1/n)*(self.acumulacion)
+        A_prima = (1/self.n)*(self.acumulacion)
         return(A_prima)
 
 """class RPotencia:
