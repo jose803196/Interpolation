@@ -83,33 +83,22 @@ class RExponencial:
         self.n = n
         self.x_data = x_data
         self.y_data = y_data
-        self.A = []
-        self.y_data_ln = []
         self.acumulacion = 0
-
-    def matrix_a(self):
-        for i in range(self.n):
-            lista_aux = []
-            for j in range(2):
-                if j == 0:
-                    lista_aux.append(1)
-                else:
-                    lista_aux.append(int(self.x_data[i]))
-            self.A.append(lista_aux)
-        return(np.array(self.A))
-    
-    def ydata_ln(self):
-        for i in range(self.n):
-            y_ln = math.log(self.y_data[i])
-            self.y_data_ln.append(y_ln)
-        return(self.y_data_ln)
+        self.V = []
     
     def resultado(self):
-        self.A_t = transpose(self.A)
-        u = matmul(self.A_t, self.A)
-        u_inv = inv(u)
-        w = matmul(self.A_t, self.y_data_ln)
-        self.V = matmul(u_inv, w)
+        b, a = 0, 0
+        var_1,var_2,var_3,var_4 = 0,0,0,0
+        for i in range(self.n):
+            var_1 += (self.x_data[i])*(math.log(self.y_data[i],math.e))
+            var_2 += self.x_data[i]
+            var_3 += math.log(self.y_data[i],math.e)
+            var_4 += (self.x_data[i])**(2)
+
+        b = ((n*var_1)-(var_2)*(var_3))/((n*var_4) - (var_2)**(2))
+        self.V.append(b)                            #Punto de corte con la ordenada
+        a = (1/self.n)*((var_3) - (b) * (var_2))    #Pendiente de la ecuación
+        self.V.append(a)
         return(self.V)
     
     def error_est_regre(self):
@@ -126,6 +115,7 @@ class RCuadratica:
         self.y_data = y_data
         self.acumulacion = 0
         self.x = []
+        self.A = []
     
     def seg_miem(self):
         var_1 = 0
@@ -155,7 +145,7 @@ class RCuadratica:
         return(np.array(self.A))
                     
     def resultado(self):
-        self.resultado = solve(self.A, self.x)
+        self.resultado = solve(np.array(self.A), np.array(self.x))
         return(self.resultado)
     
     def error_est_regre(self):
@@ -225,3 +215,14 @@ class RCubica:
         self.x_data = x_data
         self.y_data = y_data
         self.acumulacion = 0"""
+
+if __name__ == '__main__':
+    n = orden()
+    data = data(n)
+    x_data = data[0]
+    y_data = data[1]
+    lineal = RExponencial(n,x_data,y_data)
+    resultado = lineal.resultado()
+    error = lineal.error_est_regre()
+    print(resultado)
+    print(error)
