@@ -48,6 +48,7 @@ def data(n):
     return(data)
 
 class RLineal:
+    # General form:  y = mx + b
     def __init__(self, n, x_data, y_data):
         self.n = n
         self.x_data = x_data
@@ -79,6 +80,7 @@ class RLineal:
         return(A_prima)
 
 class RExponencial:
+    # General form:  y = {e}**{mx+b}
     def __init__(self, n, x_data, y_data):
         self.n = n
         self.x_data = x_data
@@ -109,6 +111,7 @@ class RExponencial:
         return(A_prima)
     
 class RCuadratica:
+    # General form:  y = a{x}**{2} + b*x + c
     def __init__(self, n, x_data, y_data):
         self.n = n
         self.x_data = x_data
@@ -156,6 +159,7 @@ class RCuadratica:
         return(A_prima)
 
 class RCubica:
+    # General form:  y = a{x}**{3} + b{x}**{2} + c*x + d
     def __init__(self, n, x_data, y_data):
         self.n = n
         self.x_data = x_data
@@ -239,12 +243,42 @@ class RPotencia:
         A_prima = (1/self.n)*(self.acumulacion)
         return(A_prima)
 
+class RHiperbolica:
+    #General form: a + \frac{b}{x}
+    def __init__(self, n, x_data, y_data):
+        self.n = n
+        self.x_data = x_data
+        self.y_data = y_data
+        self.acumulacion = 0
+        self.R =[]
+    def resultado(self):
+        a, b = 0,0
+        var_1, var_2, var_3, var_4 = 0,0,0,0
+        for i in range(self.n):
+            var_1 += (self.y_data[i])/(self.x_data[i])
+            var_2 += (1)/(self.x_data[i])
+            var_3 += self.y_data[i]
+            var_4 += (1)/((self.x_data[i])**(2))
+
+        b = ((self.n)*(var_1) -(var_2)*(var_3))/((self.n)*(var_4)-(var_2)**(2))
+        self.R.append(b)
+        a = (1/self.n)*(var_3 - (b)*(var_2))
+        self.R.append(a)
+        return(self.R)
+    
+    def error_est_regre(self):
+        for i in range(self.n):
+            y_prima = (self.R[1]) + ((self.R[0])/(self.x_data[i]))
+            self.acumulacion += math.fabs((self.y_data[i] - y_prima)/(self.y_data[i]))*(100)
+        A_prima = (1/self.n)*(self.acumulacion)
+        return(A_prima)
+
 if __name__ == '__main__':
     n = orden()
     data = data(n)
     x_data = data[0]
     y_data = data[1]
-    lineal = RPotencia(n,x_data,y_data)
+    lineal = RHiperbolica(n,x_data,y_data)
     resultado = lineal.resultado()
     error = lineal.error_est_regre()
     print(resultado)
