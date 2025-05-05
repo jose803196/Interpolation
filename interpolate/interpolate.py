@@ -310,7 +310,7 @@ if __name__ == '__main__':
     data = data(n)
     x_data = data[0]
     y_data = data[1]
-    lineal = RLogaritmica(n,x_data,y_data)
+    lineal = RCuadratica(n,x_data,y_data)
     resultado = lineal.resultado()
     error = lineal.error_est_regre()
     print(resultado)
