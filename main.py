@@ -35,9 +35,9 @@ def main():
         model = models[choice](n, x_data, y_data)
         resultado = model.resultado()
         error = model.error_est_regre()
-        plot = model.plot()
         print(f"Resultado: {resultado}")
         print(f"Error (MSE): {error}")
+        plot = model.plot()
     except ValueError as e:
         print(f"Error: {e}")
 
