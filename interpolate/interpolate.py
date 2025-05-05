@@ -3,49 +3,39 @@ import math
 from numpy.linalg import solve, inv
 from numpy import transpose
 from numpy import matmul
+import matplotlib.pyplot as plt
 
 def orden():
-    pass
-    s = True
-    while(s == True):
-        n_1 = input("Numeros de puntos: ")
+    while True:
+        n_1 = input("Número de puntos: ")
         try:
             n = int(n_1)
-            if n >1:
-                return(n)
-                s = False
+            if n > 1:
+                return n
             else:
-                pass
+                print("Debe ingresar un número mayor a 1.")
         except ValueError:
-            print("Debe ingresar numeros.")
+            print("Debe ingresar números.")
 
 def data(n):
-    data = []
+    data = [[], []]
     for i in range(2):
-        lista_aux = []
         for j in range(n):
-            if i == 0:
-                s = True
-                while(s == True):
-                    x_1 = input("Valor de X[{}]: ".format(j+1))
-                    try:
-                        x = float(x_1)
-                        lista_aux.append(x)
-                        s = False
-                    except ValueError:
-                        print("Debe ingresar numeros.")
-            else:
-                s = True
-                while(s == True):
-                    y_1 = input("Valor de Y[{}]: ".format(j+1))
-                    try:
-                        y = float(y_1)
-                        lista_aux.append(y)
-                        s = False
-                    except ValueError:
-                        print("Debe ingresar numeros.")
-        data.append(lista_aux)
-    return(data)
+            prompt = f"Valor de {'X' if i == 0 else 'Y'}[{j+1}]: "
+            while True:
+                try:
+                    value = float(input(prompt))
+                    if i == 1 and value <= 0:  # Para modelos como exponencial/potencia
+                        print("Y debe ser positivo.")
+                        continue
+                    data[i].append(value)
+                    break
+                except ValueError:
+                    print("Debe ingresar números.")
+    # Verificar que los valores de x sean únicos
+    if len(set(data[0])) != n:
+        raise ValueError("Los valores de X deben ser únicos.")
+    return data
 
 class RLineal:
     # General form:  y = mx + b
@@ -57,38 +47,48 @@ class RLineal:
         self.acumulacion = 0
 
     def resultado(self):
-        var_1 = 0
-        var_2 = 0
-        var_3 = 0
-        var_4 = 0
-        for i in range(self.n):
-            var_1 += self.x_data[i]
-            var_2 += (self.x_data[i])**(2)
-            var_3 += self.y_data[i]
-            var_4 += (self.x_data[i])*(self.y_data[i])
-        pen_diente = (((var_1)*(var_3))-((self.n)*(var_4)))/((var_1)**(2)-((self.n)*(var_2)))
-        self.R.append(pen_diente)
-        corte_ordenada = (((var_1)*(var_4))-((var_2)*(var_3)))/((var_1)**(2)-((self.n)*(var_2)))
-        self.R.append(corte_ordenada)
-        return(self.R)
+        var_1 = sum(self.x_data)
+        var_2 = sum(x**2 for x in self.x_data)
+        var_3 = sum(self.y_data)
+        var_4 = sum(x*y for x, y in zip(self.x_data, self.y_data))
+        denominator = var_1**2 - self.n * var_2
+        if abs(denominator) < 1e-10:  # Evitar división por cero
+            raise ValueError("Los datos no permiten calcular una regresión lineal (denominador cercano a cero).")
+        pen_diente = (var_1 * var_3 - self.n * var_4) / denominator
+        corte_ordenada = (var_1 * var_4 - var_2 * var_3) / denominator
+        self.R = [pen_diente, corte_ordenada]
+        return self.R
+
+    def plot(self):
+        plt.scatter(self.x_data, self.y_data, color='blue', label='Datos')
+        x_fit = np.linspace(min(self.x_data), max(self.x_data), 100)
+        y_fit = self.R[0] * x_fit + self.R[1]
+        plt.plot(x_fit, y_fit, color='red', label='Ajuste lineal')
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.legend()
+        plt.show()
 
     def error_est_regre(self):
+        mse = 0
         for i in range(self.n):
-            y_prima = ((self.R[0])*(self.x_data[i]))+(self.R[1])
-            self.acumulacion += math.fabs((self.y_data[i] - y_prima)/(self.y_data[i]))*(100)
-        A_prima = (1/self.n)*(self.acumulacion)
-        return(A_prima)
+            y_prima = self.R[0] * self.x_data[i] + self.R[1]
+            mse += (self.y_data[i] - y_prima) ** 2
+        return mse / self.n  # Error cuadrático medio
 
 class RExponencial:
     # General form:  y = {e}**{mx+b}
     def __init__(self, n, x_data, y_data):
+        if any(y <= 0 for y in y_data):
+            raise ValueError("Los valores de Y deben ser positivos para la regresión exponencial.")
         self.n = n
         self.x_data = x_data
         self.y_data = y_data
         self.acumulacion = 0
         self.V = []
     
-    def resultado(self):
+    def resultado(self,n):
+        self.n = n
         b, a = 0, 0
         var_1,var_2,var_3,var_4 = 0,0,0,0
         for i in range(self.n):
@@ -113,12 +113,13 @@ class RExponencial:
 class RCuadratica:
     # General form:  y = a{x}**{2} + b*x + c
     def __init__(self, n, x_data, y_data):
+        if any(y <= 0 for y in y_data):
+            raise ValueError("Los valores de Y deben ser positivos para la regresión exponencial.")
         self.n = n
         self.x_data = x_data
         self.y_data = y_data
         self.acumulacion = 0
-        self.x = []
-        self.A = []
+        self.V = []
     
     def seg_miem(self):
         var_1 = 0
